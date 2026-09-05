@@ -1,6 +1,9 @@
 package actividad33;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,59 +14,48 @@ public class FormularioRegistrarTaller extends JInternalFrame {
     private JTextField txtCodigo, txtNombre, txtInstructor, txtCupo, txtCosto;
 
     public FormularioRegistrarTaller(List<Taller> listaTalleres) {
-        setTitle("Registrar Nuevo Taller");
+        setTitle("REGISTRAR TALLER CULTURAL");
         setClosable(true);
         setIconifiable(true);
-        setSize(400, 300);
-        setLayout(new GridLayout(6, 2, 5, 5));
+        setSize(420, 360);
+        EstiloBrutalista.aplicarAFormulario(this);
 
-        add(new JLabel(" Código:"));
-        txtCodigo = new JTextField();
-        add(txtCodigo);
+        JPanel panelPrincipal = new JPanel(new GridLayout(6, 2, 8, 8));
+        panelPrincipal.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
+        panelPrincipal.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        add(new JLabel(" Nombre del Taller:"));
-        txtNombre = new JTextField();
-        add(txtNombre);
+        txtCodigo = agregarCampo(panelPrincipal, "CÓDIGO TALLER:");
+        txtNombre = agregarCampo(panelPrincipal, "NOMBRE:");
+        txtInstructor = agregarCampo(panelPrincipal, "INSTRUCTOR:");
+        txtCupo = agregarCampo(panelPrincipal, "CUPO MÁXIMO:");
+        txtCosto = agregarCampo(panelPrincipal, "COSTO ($):");
 
-        add(new JLabel(" Instructor:"));
-        txtInstructor = new JTextField();
-        add(txtInstructor);
+        JButton btnGuardar = EstiloBrutalista.crearBotonBrutalista("GUARDAR", EstiloBrutalista.COLOR_AMARILLO);
+        JButton btnCancelar = EstiloBrutalista.crearBotonBrutalista("CANCELAR", EstiloBrutalista.COLOR_ROSA);
 
-        add(new JLabel(" Cupo Máximo:"));
-        txtCupo = new JTextField();
-        add(txtCupo);
+        panelPrincipal.add(btnGuardar);
+        panelPrincipal.add(btnCancelar);
 
-        add(new JLabel(" Costo ($):"));
-        txtCosto = new JTextField();
-        add(txtCosto);
-
-        JButton btnGuardar = new JButton("Guardar");
-        JButton btnCancelar = new JButton("Cancelar");
-
-        add(btnGuardar);
-        add(btnCancelar);
+        add(panelPrincipal);
 
         btnGuardar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    // Sanitización de entradas (Seguridad y limpieza de datos)
                     String codigo = txtCodigo.getText().trim();
                     String nombre = txtNombre.getText().trim();
                     String instructor = txtInstructor.getText().trim();
                     String strCupo = txtCupo.getText().trim();
                     String strCosto = txtCosto.getText().trim();
 
-                    // REQUISITO 9: Campos vacíos
                     if (codigo.isEmpty() || nombre.isEmpty() || instructor.isEmpty() || strCupo.isEmpty() || strCosto.isEmpty()) {
-                        JOptionPane.showMessageDialog(null, "Todos los campos son obligatorios.", "Atención", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "¡TODOS LOS CAMPOS SON OBLIGATORIOS!", "ALERTA", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-                    // REQUISITO 7: Evitar duplicidad de código de taller
                     for (Taller t : listaTalleres) {
                         if (t.getCodigo().equalsIgnoreCase(codigo)) {
-                            JOptionPane.showMessageDialog(null, "Ya existe un taller registrado con el código: " + codigo, "Duplicidad Detectada", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "CÓDIGO DUPLICADO: " + codigo, "ERROR", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                     }
@@ -71,29 +63,36 @@ public class FormularioRegistrarTaller extends JInternalFrame {
                     int cupo = Integer.parseInt(strCupo);
                     double costo = Double.parseDouble(strCosto);
 
-                    // REQUISITO 9: Coherencia de datos (No valores negativos ni cero en cupos)
-                    if (cupo <= 0) {
-                        JOptionPane.showMessageDialog(null, "El cupo máximo debe ser mayor a 0.", "Dato Incoherente", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    if (costo < 0) {
-                        JOptionPane.showMessageDialog(null, "El costo no puede ser un valor negativo.", "Dato Incoherente", JOptionPane.WARNING_MESSAGE);
+                    if (cupo <= 0 || costo < 0) {
+                        JOptionPane.showMessageDialog(null, "VALORES NUMÉRICOS INCOHERENTES", "ALERTA", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
-                    // Registro seguro
                     Taller nuevoTaller = new Taller(codigo, nombre, instructor, cupo, costo);
                     listaTalleres.add(nuevoTaller);
 
-                    JOptionPane.showMessageDialog(null, "Taller registrado exitosamente.");
+                    JOptionPane.showMessageDialog(null, "¡TALLER REGISTRADO CON ÉXITO!");
                     dispose();
 
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(null, "Cupo y Costo deben ser numéricos válidos (ej. Cupo: 20, Costo: 15000.0).", "Error de Tipo", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "INGRESE VALORES NUMÉRICOS VÁLIDOS", "ERROR DE TIPO", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         btnCancelar.addActionListener(e -> dispose());
+    }
+
+    private JTextField agregarCampo(JPanel panel, String etiqueta) {
+        JLabel lbl = new JLabel(etiqueta);
+        lbl.setFont(EstiloBrutalista.FUENTE_LABEL);
+        lbl.setForeground(EstiloBrutalista.COLOR_NEGRO);
+
+        JTextField tf = new JTextField();
+        EstiloBrutalista.estilizarTextField(tf);
+
+        panel.add(lbl);
+        panel.add(tf);
+        return tf;
     }
 }

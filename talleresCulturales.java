@@ -1,5 +1,6 @@
 package actividad33;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 
 public class talleresCulturales extends JFrame {
 
@@ -17,6 +20,12 @@ public class talleresCulturales extends JFrame {
 	private List<Taller> listaTalleres;
 
 	public static void main(String[] args) {
+		// Personalizar Popups / JOptionPane con estilo Neobrutalista
+		UIManager.put("OptionPane.background", EstiloBrutalista.COLOR_FONDO_DESK);
+		UIManager.put("Panel.background", EstiloBrutalista.COLOR_FONDO_DESK);
+		UIManager.put("OptionPane.messageFont", EstiloBrutalista.FUENTE_LABEL);
+		UIManager.put("OptionPane.border", EstiloBrutalista.BORDE_GROSERO);
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -33,35 +42,40 @@ public class talleresCulturales extends JFrame {
 		listaTalleres = new ArrayList<>();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 800, 600);
-		setTitle("Gestión de Talleres Culturales");
+		setBounds(100, 100, 850, 650);
+		setTitle("[ GESTIÓN DE TALLERES CULTURALES ]");
 
+		// Configurar DesktopPane con color Crema Neobrutalista
 		desktopPane = new JDesktopPane();
+		desktopPane.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
 		setContentPane(desktopPane);
 
+		// Barra de Menú Brutalista
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
+		menuBar.setBackground(EstiloBrutalista.COLOR_AMARILLO);
+		menuBar.setBorder(new LineBorder(EstiloBrutalista.COLOR_NEGRO, 3));
 
-		JMenu menuTalleres = new JMenu("Talleres");
-		JMenu menuInscripciones = new JMenu("Inscripciones");
-		JMenu menuReportes = new JMenu("Reportes");
+		JMenu menuTalleres = crearMenuBrutalista("TALLERES");
+		JMenu menuInscripciones = crearMenuBrutalista("INSCRIPCIONES");
+		JMenu menuReportes = crearMenuBrutalista("REPORTES");
 
 		menuBar.add(menuTalleres);
 		menuBar.add(menuInscripciones);
 		menuBar.add(menuReportes);
+		setJMenuBar(menuBar);
 
-		JMenuItem itemRegistrar = new JMenuItem("Registrar Taller");
-		JMenuItem itemListarActivos = new JMenuItem("Listar Talleres Activos");
-		JMenuItem itemGestionar = new JMenuItem("Gestionar Talleres (Editar/Eliminar)");
+		JMenuItem itemRegistrar = crearItemBrutalista("REGISTRAR TALLER");
+		JMenuItem itemListarActivos = crearItemBrutalista("LISTAR ACTIVOS");
+		JMenuItem itemGestionar = crearItemBrutalista("GESTIONAR / EDITAR");
 
 		menuTalleres.add(itemRegistrar);
 		menuTalleres.add(itemListarActivos);
 		menuTalleres.add(itemGestionar);
 
-		JMenuItem itemInscribir = new JMenuItem("Inscribir Participante");
+		JMenuItem itemInscribir = crearItemBrutalista("INSCRIBIR PARTICIPANTE");
 		menuInscripciones.add(itemInscribir);
 
-		JMenuItem itemReporteParticipacion = new JMenuItem("Reporte de Participación");
+		JMenuItem itemReporteParticipacion = crearItemBrutalista("REPORTE DE PARTICIPACIÓN");
 		menuReportes.add(itemReporteParticipacion);
 
 		// Acciones
@@ -94,5 +108,21 @@ public class talleresCulturales extends JFrame {
 			desktopPane.add(reporte);
 			reporte.setVisible(true);
 		});
+	}
+
+	private JMenu crearMenuBrutalista(String titulo) {
+		JMenu menu = new JMenu(titulo);
+		menu.setFont(EstiloBrutalista.FUENTE_BOTON);
+		menu.setForeground(EstiloBrutalista.COLOR_NEGRO);
+		return menu;
+	}
+
+	private JMenuItem crearItemBrutalista(String texto) {
+		JMenuItem item = new JMenuItem(texto);
+		item.setFont(EstiloBrutalista.FUENTE_LABEL);
+		item.setBackground(EstiloBrutalista.COLOR_BLANCO);
+		item.setForeground(EstiloBrutalista.COLOR_NEGRO);
+		item.setBorder(new LineBorder(EstiloBrutalista.COLOR_NEGRO, 1));
+		return item;
 	}
 }

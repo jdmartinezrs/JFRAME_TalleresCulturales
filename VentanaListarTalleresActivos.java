@@ -11,35 +11,38 @@ public class VentanaListarTalleresActivos extends JInternalFrame {
     private DefaultTableModel modeloTabla;
 
     public VentanaListarTalleresActivos(List<Taller> listaTalleres) {
-        setTitle("Listado de Talleres Activos");
+        setTitle("TALLERES CULTURALES ACTIVOS");
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
-        setSize(550, 350);
+        setSize(620, 380);
         setLayout(new BorderLayout());
 
-        // Definir columnas de la tabla
-        String[] columnas = {"Código", "Nombre", "Instructor", "Cupo Max.", "Inscritos", "Costo ($)"};
+        EstiloBrutalista.aplicarAFormulario(this);
+
+        String[] columnas = {"CÓDIGO", "NOMBRE", "INSTRUCTOR", "CUPO MAX.", "INSCRITOS", "COSTO ($)"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Hacer la tabla de solo lectura
+                return false;
             }
         };
 
         tablaTalleres = new JTable(modeloTabla);
+        EstiloBrutalista.estilizarTabla(tablaTalleres); // Apariencia Neobrutalista a la tabla
+
         JScrollPane scrollPane = new JScrollPane(tablaTalleres);
+        scrollPane.getViewport().setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
+        scrollPane.setBorder(EstiloBrutalista.BORDE_GROSERO);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Cargar datos
         cargarDatos(listaTalleres);
     }
 
     private void cargarDatos(List<Taller> listaTalleres) {
-        modeloTabla.setRowCount(0); // Limpiar filas previas
+        modeloTabla.setRowCount(0);
 
         for (Taller t : listaTalleres) {
-            // Filtrar únicamente los talleres en estado ACTIVO
             if (t.isActivo()) {
                 Object[] fila = {
                     t.getCodigo(),
@@ -47,7 +50,7 @@ public class VentanaListarTalleresActivos extends JInternalFrame {
                     t.getInstructor(),
                     t.getCupoMaximo(),
                     t.getParticipantesInscritos().size(),
-                    String.format("%.2f", t.getCosto())
+                    String.format("$ %.2f", t.getCosto())
                 };
                 modeloTabla.addRow(fila);
             }

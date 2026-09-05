@@ -1,6 +1,7 @@
 package actividad33;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
@@ -14,28 +15,38 @@ public class VentanaReporteParticipacion extends JInternalFrame {
     public VentanaReporteParticipacion(List<Taller> listaTalleres) {
         this.listaTalleres = listaTalleres;
 
-        setTitle("Reporte de Participación y Ocupación");
+        setTitle("REPORTE DE PARTICIPACIÓN Y OCUPACIÓN");
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
-        setSize(750, 520);
+        setSize(800, 560);
         setLayout(new BorderLayout(10, 10));
 
-        // --- TABLA DE RESUMEN DE PARTICIPACIÓN ---
-        String[] columnas = {"Código", "Taller", "Cupo Total", "Inscritos", "Disponibles", "% Ocupación"};
+        EstiloBrutalista.aplicarAFormulario(this);
+
+        // --- TABLA RESUMEN CON ESTILO ---
+        String[] columnas = {"CÓDIGO", "TALLER", "CUPO MAX", "INSCRITOS", "LIBRES", "% OCUPACIÓN"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
 
         tablaResumen = new JTable(modeloTabla);
+        EstiloBrutalista.estilizarTabla(tablaResumen);
+
         JScrollPane scrollTabla = new JScrollPane(tablaResumen);
-        scrollTabla.setPreferredSize(new Dimension(720, 180));
+        scrollTabla.setPreferredSize(new Dimension(760, 180));
+        scrollTabla.setBorder(EstiloBrutalista.BORDE_GROSERO);
         add(scrollTabla, BorderLayout.NORTH);
 
-        // --- PANEL DEL GRÁFICO PERSONALIZADO ---
-        PanelGraficoGrafico panelGrafico = new PanelGraficoGrafico();
-        panelGrafico.setBorder(BorderFactory.createTitledBorder("Visualización de Ocupación por Taller"));
+        // --- PANEL DE GRÁFICO BRUTALISTA ---
+        PanelGraficoBrutalista panelGrafico = new PanelGraficoBrutalista();
+        TitledBorder border = BorderFactory.createTitledBorder(EstiloBrutalista.BORDE_GROSERO, " OCUPACIÓN POR TALLER (BARRAS) ");
+        border.setTitleFont(EstiloBrutalista.FUENTE_BOTON);
+        border.setTitleColor(EstiloBrutalista.COLOR_NEGRO);
+        panelGrafico.setBorder(border);
+        panelGrafico.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
+
         add(panelGrafico, BorderLayout.CENTER);
 
         cargarReporte();
@@ -61,53 +72,55 @@ public class VentanaReporteParticipacion extends JInternalFrame {
         }
     }
 
-    // --- SUBCLASE INTERNA PARA DIBUJAR EL GRÁFICO EN SWING ---
-    private class PanelGraficoGrafico extends JPanel {
+    // --- GRÁFICO ESTADÍSTICO DE BARRAS SOLIDAD Y CONTORNOS NEGROS ---
+    private class PanelGraficoBrutalista extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
             if (listaTalleres == null || listaTalleres.isEmpty()) {
-                g.drawString("No hay datos de talleres para generar el gráfico.", 20, 30);
+                g.setFont(EstiloBrutalista.FUENTE_BOTON);
+                g.drawString("NO HAY DATOS REGISTRADOS", 30, 40);
                 return;
             }
 
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
             int width = getWidth();
             int height = getHeight();
             int padding = 50;
-            int barWidth = Math.max(20, (width - (padding * 2)) / (listaTalleres.size() * 2));
-            int maxHeight = height - padding * 2 - 30;
+            int barWidth = Math.max(25, (width - (padding * 2)) / (listaTalleres.size() * 2 + 1));
+            int maxHeight = height - padding * 2 - 20;
 
-            // Encontrar el valor máximo de cupos para escalar las barras
             int maxCupo = 1;
             for (Taller t : listaTalleres) {
-                if (t.getCupoMaximo() > maxCupo) {
-                    maxCupo = t.getCupoMaximo();
-                }
+                if (t.getCupoMaximo() > maxCupo) maxCupo = t.getCupoMaximo();
             }
 
             int x = padding;
             int baseY = height - padding;
 
-            // Dibujar Eje Base
-            g2d.setColor(Color.GRAY);
-            g2d.drawLine(padding - 10, baseY, width - padding + 10, baseY);
+            // Línea de Eje Gruesa
+            g2.setColor(EstiloBrutalista.COLOR_NEGRO);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawLine(padding - 10, baseY, width - padding + 10, baseY);
 
-            // Leyenda
-            g2d.setColor(new Color(41, 128, 185)); // Azul
-            g2d.fillRect(width - 160, 15, 12, 12);
-            g2d.setColor(Color.BLACK);
-            g2d.drawString("Inscritos", width - 142, 26);
+            // Leyenda Neobrutalista
+            g2.setColor(EstiloBrutalista.COLOR_ROSA);
+            g2.fillRect(width - 180, 15, 16, 16);
+            g2.setColor(EstiloBrutalista.COLOR_NEGRO);
+            g2.drawRect(width - 180, 15, 16, 16);
+            g2.setFont(EstiloBrutalista.FUENTE_LABEL);
+            g2.drawString("INSCRITOS", width - 158, 28);
 
-            g2d.setColor(new Color(189, 195, 199)); // Gris
-            g2d.fillRect(width - 80, 15, 12, 12);
-            g2d.setColor(Color.BLACK);
-            g2d.drawString("Libres", width - 62, 26);
+            g2.setColor(EstiloBrutalista.COLOR_CIAN);
+            g2.fillRect(width - 80, 15, 16, 16);
+            g2.setColor(EstiloBrutalista.COLOR_NEGRO);
+            g2.drawRect(width - 80, 15, 16, 16);
+            g2.drawString("LIBRES", width - 58, 28);
 
-            // Dibujar Barras por cada taller
+            // Dibujar Bloques de Barras
             for (Taller t : listaTalleres) {
                 int inscritos = t.getParticipantesInscritos().size();
                 int disponibles = t.getCuposDisponibles();
@@ -115,20 +128,29 @@ public class VentanaReporteParticipacion extends JInternalFrame {
                 int hInscritos = (int) (((double) inscritos / maxCupo) * maxHeight);
                 int hDisponibles = (int) (((double) disponibles / maxCupo) * maxHeight);
 
-                // Barra Inscritos (Azul)
-                g2d.setColor(new Color(41, 128, 185));
-                g2d.fillRect(x, baseY - hInscritos, barWidth, hInscritos);
+                // Barra Inscritos (Rosa Neón)
+                if (hInscritos > 0) {
+                    g2.setColor(EstiloBrutalista.COLOR_ROSA);
+                    g2.fillRect(x, baseY - hInscritos, barWidth, hInscritos);
+                    g2.setColor(EstiloBrutalista.COLOR_NEGRO);
+                    g2.drawRect(x, baseY - hInscritos, barWidth, hInscritos);
+                }
 
-                // Barra Disponibles (Gris)
-                g2d.setColor(new Color(189, 195, 199));
-                g2d.fillRect(x + barWidth, baseY - hDisponibles, barWidth, hDisponibles);
+                // Barra Disponibles (Cian Neón)
+                if (hDisponibles > 0) {
+                    g2.setColor(EstiloBrutalista.COLOR_CIAN);
+                    g2.fillRect(x + barWidth, baseY - hDisponibles, barWidth, hDisponibles);
+                    g2.setColor(EstiloBrutalista.COLOR_NEGRO);
+                    g2.drawRect(x + barWidth, baseY - hDisponibles, barWidth, hDisponibles);
+                }
 
                 // Etiqueta Nombre del Taller
-                g2d.setColor(Color.BLACK);
-                String nombreCorto = t.getNombre().length() > 8 ? t.getNombre().substring(0, 7) + ".." : t.getNombre();
-                g2d.drawString(nombreCorto, x, baseY + 15);
+                g2.setColor(EstiloBrutalista.COLOR_NEGRO);
+                g2.setFont(EstiloBrutalista.FUENTE_LABEL);
+                String label = t.getNombre().length() > 6 ? t.getNombre().substring(0, 5) + "." : t.getNombre();
+                g2.drawString(label, x, baseY + 20);
 
-                x += (barWidth * 2) + 15; // Desplazar al siguiente bloque
+                x += (barWidth * 2) + 20;
             }
         }
     }

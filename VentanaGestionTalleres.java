@@ -1,6 +1,7 @@
 package actividad33;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
@@ -17,69 +18,75 @@ public class VentanaGestionTalleres extends JInternalFrame {
     public VentanaGestionTalleres(List<Taller> lista) {
         this.listaTalleres = lista;
 
-        setTitle("Gestión / Edición / Eliminación de Talleres");
+        setTitle("GESTIÓN Y EDICIÓN DE TALLERES");
         setClosable(true);
         setIconifiable(true);
         setMaximizable(true);
-        setSize(700, 480);
+        setSize(750, 520);
         setLayout(new BorderLayout(10, 10));
 
-        // --- TABLA SUPERIOR ---
-        String[] columnas = {"Código", "Nombre", "Instructor", "Cupo Max.", "Costo ($)", "Estado"};
+        EstiloBrutalista.aplicarAFormulario(this);
+
+        // --- TABLA SUPERIOR CON ESTILO ---
+        String[] columnas = {"CÓDIGO", "NOMBRE", "INSTRUCTOR", "CUPO MAX.", "COSTO ($)", "ESTADO"};
         modeloTabla = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
 
         tabla = new JTable(modeloTabla);
+        EstiloBrutalista.estilizarTabla(tabla);
+
         JScrollPane scrollPane = new JScrollPane(tabla);
+        scrollPane.setPreferredSize(new Dimension(720, 180));
+        scrollPane.setBorder(EstiloBrutalista.BORDE_GROSERO);
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- PANEL DE FORMULARIO INFERIOR ---
-        JPanel panelFormulario = new JPanel(new GridLayout(6, 2, 5, 5));
-        panelFormulario.setBorder(BorderFactory.createTitledBorder("Datos del Taller Seleccionado"));
+        // --- FORMULARIO INFERIOR ---
+        JPanel panelFormulario = new JPanel(new GridLayout(6, 2, 6, 6));
+        panelFormulario.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
+        
+        TitledBorder border = BorderFactory.createTitledBorder(EstiloBrutalista.BORDE_GROSERO, " DATOS DEL TALLER SELECCIONADO ");
+        border.setTitleFont(EstiloBrutalista.FUENTE_BOTON);
+        border.setTitleColor(EstiloBrutalista.COLOR_NEGRO);
+        panelFormulario.setBorder(border);
 
-        panelFormulario.add(new JLabel("Código:"));
-        txtCodigo = new JTextField();
-        panelFormulario.add(txtCodigo);
+        txtCodigo = agregarCampo(panelFormulario, "CÓDIGO:");
+        txtNombre = agregarCampo(panelFormulario, "NOMBRE:");
+        txtInstructor = agregarCampo(panelFormulario, "INSTRUCTOR:");
+        txtCupo = agregarCampo(panelFormulario, "CUPO MÁXIMO:");
+        txtCosto = agregarCampo(panelFormulario, "COSTO ($):");
 
-        panelFormulario.add(new JLabel("Nombre:"));
-        txtNombre = new JTextField();
-        panelFormulario.add(txtNombre);
+        JLabel lblEstado = new JLabel("ESTADO:");
+        lblEstado.setFont(EstiloBrutalista.FUENTE_LABEL);
+        panelFormulario.add(lblEstado);
 
-        panelFormulario.add(new JLabel("Instructor:"));
-        txtInstructor = new JTextField();
-        panelFormulario.add(txtInstructor);
-
-        panelFormulario.add(new JLabel("Cupo Máximo:"));
-        txtCupo = new JTextField();
-        panelFormulario.add(txtCupo);
-
-        panelFormulario.add(new JLabel("Costo ($):"));
-        txtCosto = new JTextField();
-        panelFormulario.add(txtCosto);
-
-        panelFormulario.add(new JLabel("Estado:"));
-        chkActivo = new JCheckBox("Activo");
+        chkActivo = new JCheckBox("ACTIVO");
+        chkActivo.setFont(EstiloBrutalista.FUENTE_BOTON);
+        chkActivo.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
+        chkActivo.setForeground(EstiloBrutalista.COLOR_NEGRO);
         panelFormulario.add(chkActivo);
 
-        // --- PANEL DE BOTONES ---
-        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnGuardar = new JButton("Guardar Cambios");
-        JButton btnCambiarEstado = new JButton("Activar / Desactivar");
-        JButton btnEliminar = new JButton("Eliminar Taller");
+        // --- BOTONES INFERIORES ---
+        JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        panelBotones.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
+
+        JButton btnGuardar = EstiloBrutalista.crearBotonBrutalista("GUARDAR", EstiloBrutalista.COLOR_AMARILLO);
+        JButton btnCambiarEstado = EstiloBrutalista.crearBotonBrutalista("ESTADO", EstiloBrutalista.COLOR_CIAN);
+        JButton btnEliminar = EstiloBrutalista.crearBotonBrutalista("ELIMINAR", EstiloBrutalista.COLOR_ROSA);
 
         panelBotones.add(btnGuardar);
         panelBotones.add(btnCambiarEstado);
         panelBotones.add(btnEliminar);
 
         JPanel panelSur = new JPanel(new BorderLayout());
+        panelSur.setBackground(EstiloBrutalista.COLOR_FONDO_DESK);
         panelSur.add(panelFormulario, BorderLayout.CENTER);
         panelSur.add(panelBotones, BorderLayout.SOUTH);
 
         add(panelSur, BorderLayout.SOUTH);
 
-        // --- EVENTO AL SELECCIONAR UNA FILA DE LA TABLA ---
+        // Selección en la tabla
         tabla.getSelectionModel().addListSelectionListener(e -> {
             int fila = tabla.getSelectedRow();
             if (fila >= 0 && fila < listaTalleres.size()) {
@@ -93,10 +100,10 @@ public class VentanaGestionTalleres extends JInternalFrame {
             }
         });
 
-        // --- GUARDAR EDICIÓN ---
+        // Guardar Cambios
         btnGuardar.addActionListener(e -> {
             if (tallerSeleccionado == null) {
-                JOptionPane.showMessageDialog(this, "Seleccione un taller de la tabla.");
+                JOptionPane.showMessageDialog(this, "SELEACCIONE UN TALLER DE LA TABLA.", "ALERTA", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             try {
@@ -107,51 +114,61 @@ public class VentanaGestionTalleres extends JInternalFrame {
                 tallerSeleccionado.setCosto(Double.parseDouble(txtCosto.getText().trim()));
                 tallerSeleccionado.setActivo(chkActivo.isSelected());
 
-                JOptionPane.showMessageDialog(this, "Taller actualizado con éxito.");
+                JOptionPane.showMessageDialog(this, "¡TALLER ACTUALIZADO!");
                 cargarTabla();
                 limpiarFormulario();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Cupo y Costo deben ser numéricos.");
+                JOptionPane.showMessageDialog(this, "VALORES NUMÉRICOS INCOHERENTES.", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        // --- CAMBIAR ESTADO RÁPIDO ---
+        // Cambiar Estado
         btnCambiarEstado.addActionListener(e -> {
             if (tallerSeleccionado == null) {
-                JOptionPane.showMessageDialog(this, "Seleccione un taller de la tabla.");
+                JOptionPane.showMessageDialog(this, "SELECCIONE UN TALLER DE LA TABLA.", "ALERTA", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             boolean nuevoEstado = !tallerSeleccionado.isActivo();
             tallerSeleccionado.setActivo(nuevoEstado);
             chkActivo.setSelected(nuevoEstado);
 
-            String estadoTexto = nuevoEstado ? "ACTIVO" : "INACTIVO";
-            JOptionPane.showMessageDialog(this, "El estado del taller cambió a: " + estadoTexto);
+            JOptionPane.showMessageDialog(this, "ESTADO CAMBIADO A: " + (nuevoEstado ? "ACTIVO" : "INACTIVO"));
             cargarTabla();
         });
 
-        // --- ELIMINAR REGISTRO ---
+        // Eliminar
         btnEliminar.addActionListener(e -> {
             if (tallerSeleccionado == null) {
-                JOptionPane.showMessageDialog(this, "Seleccione un taller para eliminar.");
+                JOptionPane.showMessageDialog(this, "SELECCIONE UN TALLER PARA ELIMINAR.", "ALERTA", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             int resp = JOptionPane.showConfirmDialog(
                 this,
-                "¿Está seguro de eliminar el taller: " + tallerSeleccionado.getNombre() + "?",
-                "Confirmar eliminación",
+                "¿ELIMINAR TALLER: " + tallerSeleccionado.getNombre() + "?",
+                "CONFIRMAR ELIMINACIÓN",
                 JOptionPane.YES_NO_OPTION
             );
 
             if (resp == JOptionPane.YES_OPTION) {
                 listaTalleres.remove(tallerSeleccionado);
-                JOptionPane.showMessageDialog(this, "Taller eliminado correctamente.");
+                JOptionPane.showMessageDialog(this, "¡TALLER ELIMINADO!");
                 cargarTabla();
                 limpiarFormulario();
             }
         });
 
         cargarTabla();
+    }
+
+    private JTextField agregarCampo(JPanel panel, String etiqueta) {
+        JLabel lbl = new JLabel(etiqueta);
+        lbl.setFont(EstiloBrutalista.FUENTE_LABEL);
+        panel.add(lbl);
+
+        JTextField tf = new JTextField();
+        EstiloBrutalista.estilizarTextField(tf);
+        panel.add(tf);
+        return tf;
     }
 
     private void cargarTabla() {
@@ -162,8 +179,8 @@ public class VentanaGestionTalleres extends JInternalFrame {
                 t.getNombre(),
                 t.getInstructor(),
                 t.getCupoMaximo(),
-                String.format("%.2f", t.getCosto()),
-                t.isActivo() ? "Activo" : "Inactivo"
+                String.format("$ %.2f", t.getCosto()),
+                t.isActivo() ? "ACTIVO" : "INACTIVO"
             };
             modeloTabla.addRow(fila);
         }
